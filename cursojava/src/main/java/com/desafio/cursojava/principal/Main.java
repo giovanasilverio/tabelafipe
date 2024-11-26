@@ -1,15 +1,25 @@
 package com.desafio.cursojava.principal;
 
+import com.desafio.cursojava.modelo.Dados;
+import com.desafio.cursojava.modelo.Modelos;
+import com.desafio.cursojava.modelo.Veiculo;
 import com.desafio.cursojava.servico.ConsumoAPI;
+import com.desafio.cursojava.servico.ConversaoDados;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Main {
     private final Scanner leitura = new Scanner(System.in);
     private final ConsumoAPI consumo = new ConsumoAPI();
+    private ConversaoDados conversor = new ConversaoDados();
 
     private final String URL_BASE = "https://parallelum.com.br/fipe/api/v1/";
 
+    //Tipo do veículo para consulta
     public void exibeMenu() {
         var menu_tipos = """
                 *** TIPOS ***
@@ -21,65 +31,78 @@ public class Main {
 
         System.out.println(menu_tipos);
         var tipos = leitura.nextLine();
-        String endereco_tipo;
+        String endereco;
 
         switch (tipos.toLowerCase()) {
             case "carro", "carros", "1":
-                endereco_tipo = URL_BASE + "carros/marcas";
+                endereco = URL_BASE + "carros/marcas";
                 break;
             case "moto", "motos", "2":
-                endereco_tipo = URL_BASE + "motos/marcas";
+                endereco = URL_BASE + "motos/marcas";
                 break;
             case "caminhao", "caminhões", "3":
-                endereco_tipo = URL_BASE + "caminhoes/marcas";
+                endereco = URL_BASE + "caminhoes/marcas";
                 break;
             default:
                 System.out.println("Opção inválida, tente novamente.");
                 return;
         }
 
-        var json = consumo.obterDados(endereco_tipo);
+        //Conferência se os dados foram recebidos
+        var json = consumo.obterDados(endereco);
         if (json != null) {
-            System.out.println("Dados recebidos:\n" + json);
+            System.out.println("Dados recebidos");
         } else {
             System.out.println("Erro ao obter os dados.");
         }
-
-        var menu_modelo = """
+        //Escolher marca
+        var marcas = conversor.obterLista(json, Dados.class);
+        marcas.stream()
+                .sorted(Comparator.comparing(Dados::nome))
+                .forEach(System.out::println);
+        var menu_marca = """
                 *** MARCAS ***
                 Escolha o código da marca para consulta
                 """;
-        System.out.println(menu_modelo);
-        var codigo_modelo = leitura.nextLine();
-        String endereco_modelo;
+        System.out.println(menu_marca);
+        var codigo_marca = leitura.nextLine();
+        endereco = endereco + "/" + codigo_marca + "/modelos";
+        json = consumo.obterDados(endereco);
 
-        endereco_modelo = endereco_tipo + "/" + codigo_modelo + "/modelos";
-        var json1 = consumo.obterDados(endereco_modelo);
-        System.out.println(json1);
+        //Escolher modelo
+        var modelo = conversor.obterDados(json, Modelos.class);
+        modelo.modelos().stream()
+                .sorted(Comparator.comparing(Dados::nome))
+                .forEach(System.out::println);
 
-        var menu_carro = """
+        var menu_modelo = """
                 *** MODELO DO VEÍCULO ***
-                Escolha o código do carro para consulta
+                Digite um trecho do nome do carro a ser buscado:
                 """;
-        System.out.println(menu_carro);
-        var codigo_carro = leitura.nextLine();
-        String endereco_carro;
+        System.out.println(menu_modelo);
+        var nome_veiculo = leitura.nextLine();
+        List<Dados> modelosFiltrados = modelo.modelos().stream()
+                .filter(m -> m.nome().toLowerCase().contains(nome_veiculo.toLowerCase()))
+                .collect(Collectors.toList());
+        modelosFiltrados.forEach(System.out::println);
 
-        endereco_carro = endereco_modelo + "/" + codigo_carro + "/anos";
-        var json2 = consumo.obterDados(endereco_carro);
-        System.out.println(json2);
+        System.out.println("Digite o código do modelo: ");
+        var codigo_modelo = leitura.nextLine();
+        endereco = endereco + "/" + codigo_modelo + "/anos";
+        json = consumo.obterDados(endereco);
 
-        var menu_ano = """
-                *** ANO DO VEÍCULO ***
-                Escolha o ano do veículo para consulta
-                """;
-        System.out.println(menu_ano);
-        var codigo_ano = leitura.nextLine();
-        String endereco_ano;
+        //Escolher ano
+        List<Dados> anos = conversor.obterLista(json, Dados.class);
+        List<Veiculo> veiculos = new ArrayList<>();
+        for (int i = 0; i < anos.size(); i++) {
+            var enderecoAnos = endereco + "/" + anos.get(i).codigo();
+            json = consumo.obterDados(enderecoAnos);
+            Veiculo veiculo = conversor.obterDados (json, Veiculo.class);
+            veiculos.add(veiculo);
+        }
 
-        endereco_ano = endereco_carro + "/" + codigo_ano + "-1";
-        var json3 = consumo.obterDados(endereco_ano);
-        System.out.println(json3);
+        System.out.println("\nTodos os veiculos filtrados com avaliações por ano: "); veiculos.forEach(System.out::println);
+
 
     }
 }
