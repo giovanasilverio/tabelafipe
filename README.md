@@ -1,10 +1,8 @@
-Ótimo! Nesse caso, aqui está uma versão atualizada do README para refletir que o projeto utiliza o **Spring Framework**:
 
----
 
 # Tabela FIPE - Aplicação de Análise 🚗
 
-Este repositório contém uma aplicação **Spring Boot** desenvolvida em Java para realizar consultas e análises utilizando dados da **Tabela FIPE**. A aplicação consome a API oficial da Tabela FIPE para buscar informações de veículos como marcas, modelos e anos, oferecendo uma base sólida para análises detalhadas.
+Este repositório contém uma aplicação **Spring Boot** desenvolvida em Java durante a formação da Alura para realizar consultas e análises utilizando dados da **Tabela FIPE**. A aplicação consome a API oficial da Tabela FIPE para buscar informações de veículos como marcas, modelos e anos, oferecendo uma base sólida para análises detalhadas.
 
 ---
 
