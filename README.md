@@ -22,7 +22,6 @@ Este repositório contém uma aplicação **Spring Boot** desenvolvida em Java d
 - **Spring Boot**: Framework utilizado para criar a aplicação.
 - **Spring Web**: Para integração com APIs REST.
 - **Gson**: Manipulação de JSON.
-- **Lombok**: Para reduzir boilerplate no código.
 - **Maven**: Gerenciador de dependências e build.
 - **API Tabela FIPE**: Fonte oficial dos dados.
 
